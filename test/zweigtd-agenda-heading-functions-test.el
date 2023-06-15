@@ -34,9 +34,29 @@
 (require 'buttercup)
 (require 'zweigtd-agenda-heading-functions)
 
-(describe "zweigtd-agenda-heading-functions"
-  (it "isn't erroring out"
-    (expect t :to-be t)))
+(describe "zweigtd-agenda-heading-functions-set-saved-effort"
+  (it "sets the saved effort variable to the provided value"
+    (spy-on 'org-set-effort)
+    (let ((marker (make-marker)))
+      (set-marker marker (point) (current-buffer))
+      (spy-on 'org-get-at-bol :and-return-value marker)
+      (zweigtd-agenda-heading-functions-set-saved-effort "2:00")
+      (expect 'org-set-effort :to-have-been-called)
+      (expect zweigtd-agenda-heading-functions-saved-effort :to-equal "2:00"))))
+
+(describe "zweigtd-agenda-heading-functions-edit-headline"
+  (it "edits the headline of the current agenda item"
+    (with-temp-buffer
+      (org-mode)
+      (org-agenda-list)
+      (switch-to-buffer "*Org Agenda*")
+      (spy-on 'org-edit-headline)
+      (let ((marker (make-marker)))
+        (set-marker marker (point) (current-buffer))
+        (spy-on 'org-get-at-bol :and-return-value marker)
+        (zweigtd-agenda-heading-functions-edit-headline)
+        (expect 'org-edit-headline :to-have-been-called)
+        (kill-buffer "*Org Agenda*")))))
 
 (provide 'zweigtd-agenda-heading-functions-test)
 
